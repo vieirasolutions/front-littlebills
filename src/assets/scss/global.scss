@@ -1,7 +1,11 @@
-.v-card {
+.v-card.radius-20{
   border-radius: 20px;
 }
 
-.v-btn.v-btn--contained {
+.v-btn.v-btn--contained.radius-10 {
   border-radius: 10px;
+}
+
+.title-page span{
+  font-weight: bold;
 }

@@ -7,9 +7,9 @@ import vuetify from './plugins/vuetify'
 import './plugins/vue-the-mask'
 import './plugins/vue-moment'
 import './plugins/vee-validate'
-import 'roboto-fontface/css/roboto/roboto-fontface.css'
-import 'material-design-icons-iconfont/dist/material-design-icons.css'
-
+import './plugins/v-currency-field'
+import './layouts'
+import './filters'
 Vue.config.productionTip = false
 
 new Vue({

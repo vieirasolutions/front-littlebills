@@ -55,6 +55,13 @@ extend('date_format', {
   message: 'Data inválida'
 })
 
+extend('people_name', {
+  validate (value) {
+    return !(/\d/.test(value))
+  },
+  message: 'Nome inválido'
+})
+
 // Register it globally
 Vue.component('ValidationProvider', ValidationProvider)
 Vue.component('ValidationObserver', ValidationObserver)

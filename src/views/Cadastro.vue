@@ -13,7 +13,7 @@
           sm8
           md4
         >
-          <v-card class="elevation-12">
+          <v-card class="elevation-12 radius-20">
             <v-toolbar
               color="primary"
               dark
@@ -58,7 +58,7 @@
                         ref="nome"
                         mode="lazy"
                         name="nome"
-                        rules="required"
+                        rules="required|people_name"
                         v-slot="{ errors }"
                       >
                         <v-text-field

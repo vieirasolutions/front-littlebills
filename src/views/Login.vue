@@ -13,7 +13,7 @@
           sm8
           md4
         >
-          <v-card class="elevation-12 login-card">
+          <v-card class="elevation-12 login-card radius-20">
             <v-toolbar
               color="primary"
               dark
