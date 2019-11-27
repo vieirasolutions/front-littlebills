@@ -75,6 +75,7 @@
             <v-card-actions class="ml-1 mr-1">
               <v-spacer></v-spacer>
               <v-btn
+                :loading="loadingLogin"
                 width="100%"
                 color="primary"
                 @click="logar()"
@@ -88,20 +89,42 @@
 </template>
 
 <script>
+import api from '@/api'
 export default {
   name: 'login',
   data () {
     return {
       email: '',
       password: '',
-      verVenha: false
+      verVenha: false,
+      loadingLogin: false
     }
   },
   methods: {
     async logar () {
       const isValid = await this.$refs.observer.validate()
       if (isValid) {
-        // Call back-end'
+        this.loadingLogin = true
+        api({
+          url: '/auth',
+          method: 'POST',
+          auth: {
+            username: this.email,
+            password: this.password
+          }
+        })
+          .then(({ status, data }) => {
+            if (status === 201) {
+              localStorage.setItem('lb_access_token', data.token)
+              this.$router.push('/')
+            }
+          })
+          .catch(() => {
+            this.$store.dispatch('snackbar/openSnackbar', { text: 'Dados incorretos!', color: 'error', timeout: 6000 })
+          })
+          .finally(() => {
+            this.loadingLogin = false
+          })
       }
     }
   },

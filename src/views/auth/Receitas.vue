@@ -38,39 +38,77 @@
 
               <v-card-text>
                 <v-container>
-                  <v-row>
-                    <v-col
-                      cols="12"
-                      sm="6"
-                      md="4"
-                    >
-                      <v-text-field
-                        v-model="editedItem.descricao"
-                        label="Descrição"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="6"
-                      md="4"
-                    >
-                      <v-text-field
-                        v-model="editedItem.valor"
-                        label="Valor"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="6"
-                      md="4"
-                    >
-                      <v-select
-                        v-model="editedItem.tipo"
-                        :items="items"
-                        label="Tipo"
-                      ></v-select>
-                    </v-col>
-                  </v-row>
+                  <ValidationObserver
+                    ref="observer"
+                    tag="form"
+                  >
+                    <v-row>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                        md="4"
+                      >
+                        <ValidationProvider
+                          mode="lazy"
+                          name="descricao"
+                          rules="required"
+                          v-slot="{ errors }"
+                        >
+                          <v-text-field
+                            :persistent-hint="errors.length > 0"
+                            :error="errors.length > 0"
+                            :hint="errors[0]"
+                            v-model="editedItem.description"
+                            label="Descrição"
+                          ></v-text-field>
+                        </ValidationProvider>
+                      </v-col>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                        md="4"
+                      >
+                        <ValidationProvider
+                          mode="lazy"
+                          name="valor"
+                          rules="required"
+                          v-slot="{ errors }"
+                        >
+                          <v-text-field
+                            :persistent-hint="errors.length > 0"
+                            :error="errors.length > 0"
+                            :hint="errors[0]"
+                            v-model="editedItem.value"
+                            label="Valor"
+                          ></v-text-field>
+                        </ValidationProvider>
+                      </v-col>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                        md="4"
+                      >
+                        <ValidationProvider
+                          mode="lazy"
+                          name="tipo"
+                          rules="required"
+                          v-slot="{ errors }"
+                        >
+                          <v-select
+                            :persistent-hint="errors.length > 0"
+                            :error="errors.length > 0"
+                            :hint="errors[0]"
+                            v-model="editedItem.category.id"
+                            :items="items"
+                            item-value="id"
+                            item-text="name"
+                            return-object
+                            label="Tipo"
+                          ></v-select>
+                        </ValidationProvider>
+                      </v-col>
+                    </v-row>
+                  </ValidationObserver>
                 </v-container>
               </v-card-text>
 
@@ -84,6 +122,7 @@
                 <v-btn
                   color="blue darken-1"
                   text
+                  :loading="loadingSave"
                   @click="save"
                 >Salvar</v-btn>
               </v-card-actions>
@@ -114,12 +153,6 @@
           text
           icon
         >
-          <v-icon
-            small
-            @click="editItem(item)"
-          >
-            edit
-          </v-icon>
         </v-btn>
         <v-btn
           small
@@ -145,35 +178,42 @@
 </template>
 
 <script>
-
+import api from '@/api'
 export default {
   name: 'receitas',
   data: () => ({
+    loadingSave: false,
     search: '',
     dialog: false,
-    items: ['Mesada', 'Salário', 'Presente', 'Rendimento'],
+    items: [],
     headers: [
       {
         text: 'Descrição',
         align: 'left',
         sortable: false,
-        value: 'descricao'
+        value: 'description'
       },
-      { text: 'Valor', value: 'valor' },
-      { text: 'Tipo', value: 'tipo' },
+      { text: 'Valor', value: 'value' },
+      { text: 'Tipo', value: 'category.name' },
       { text: 'Ações', value: 'action', sortable: false }
     ],
     desserts: [],
     editedIndex: -1,
     editedItem: {
       nome: '',
-      valor: 0,
-      tipo: 0
+      value: 0,
+      tipo: 0,
+      category: {
+        id: null
+      }
     },
     defaultItem: {
       nome: '',
-      valor: 0,
-      tipo: 0
+      value: 0,
+      tipo: 0,
+      category: {
+        id: null
+      }
     }
   }),
   computed: {
@@ -188,23 +228,37 @@ export default {
   },
 
   created () {
+    this.buscaCategorias()
     this.initialize()
   },
 
   methods: {
+    resetModalCrud () {
+      this.editedItem = {}
+    },
+    persist () {
+
+    },
+    buscaCategorias () {
+      api({ url: '/categories',
+        method: 'GET',
+        params: {
+          type: 'income'
+        } })
+        .then(({ status, data }) => {
+          this.items = data.rows
+        })
+    },
     initialize () {
-      this.desserts = [
-        {
-          descricao: 'Mesada da mamãe',
-          valor: 80,
-          tipo: 'Mesada'
-        },
-        {
-          descricao: 'Presente do vô',
-          valor: 30,
-          tipo: 'Presente'
-        }
-      ]
+      api({ url: '/transactions',
+        method: 'GET',
+        params: {
+          categoryType: 'income'
+        } })
+        .then(({ status, data }) => {
+          console.log(data)
+          this.desserts = data.rows
+        })
     },
 
     editItem (item) {
@@ -227,11 +281,29 @@ export default {
     },
 
     save () {
-      if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem)
-      } else {
-        this.desserts.push(this.editedItem)
-      }
+      this.loadingSave = true
+      api({ url: '/transactions',
+        method: 'POST',
+        data: {
+          'wallet': this.$store.getters['user/getWallet'].id,
+          'id': this.editedIndex !== -1 ? this.editedItem.id : '',
+          'category': this.editedItem.category.id.id,
+          'value': this.editedItem.value,
+          'description': this.editedItem.description,
+          '_method': this.editedIndex !== -1 ? 'PUT' : 'POST'
+        } })
+        .then(({ status, data }) => {
+          console.log(status)
+          // created
+          if (status === 201) {
+            console.log('entrou')
+            this.$store.dispatch('snackbar/openSnackbar', { text: 'Receita inserida com sucesso!', color: 'success', timeout: 6000 })
+            this.initialize()
+          }
+        })
+        .finally(() => {
+          this.loadingSave = false
+        })
       this.close()
     }
   }

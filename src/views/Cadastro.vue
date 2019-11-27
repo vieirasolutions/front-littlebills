@@ -185,7 +185,7 @@
                         <ValidationProvider
                           mode="lazy"
                           name="password"
-                          rules="required"
+                          rules="required|digits:6"
                           v-slot="{ errors }"
                         >
                           <v-text-field
@@ -205,7 +205,7 @@
                         <ValidationProvider
                           mode="lazy"
                           name="confirm_password"
-                          :rules="{ required: true, password_confirm: {password: password}}"
+                          :rules="{ required: true, digits: {length: 6}, password_confirm: {password: password}}"
                           v-slot="{ errors }"
                         >
                           <v-text-field
@@ -229,6 +229,7 @@
                   <v-btn
                     color="primary"
                     width="100%"
+                    :loading="loadingCadastro"
                     @click="criarConta()"
                   >
                     Criar conta
@@ -244,10 +245,13 @@
 </template>
 
 <script>
+import api from '@/api'
+
 export default {
   name: 'cadastro',
   data () {
     return {
+      loadingCadastro: false,
       confirm_password: '',
       password: '',
       email: '',
@@ -292,8 +296,52 @@ export default {
     async criarConta () {
       const isValid = await this.$refs.observer.validate()
       if (isValid) {
-        // Call back-end'
+        this.loadingCadastro = true
+        api.post('/users', {
+          'email': this.email,
+          'nome': this.nome,
+          'role': 'user',
+          'password': this.password,
+          'sex': this.genero === 'M' ? 'male' : 'female',
+          'birthDate': this.$moment(this.dataNascimento, 'd/m/Y')
+        })
+          .then(({ status, data }) => {
+            if (status === 201) {
+              // Ok
+              localStorage.setItem('lb_access_token', data.token)
+              api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+              this.$store.dispatch('user/setUser', data.user)
+              this.criarCarteira()
+            }
+          })
+          .catch(error => {
+            if (error.response.status === 409) {
+              if (error.response.data.param === 'email') {
+                this.$store.dispatch('snackbar/openSnackbar', { text: 'E-mail já utilizado', color: 'error', timeout: 6000 })
+              }
+            }
+            this.loadingCadastro = false
+          })
       }
+    },
+    criarCarteira () {
+      api({
+        url: '/wallets',
+        method: 'POST',
+        data: {
+          balance: 0,
+          name: 'Principal'
+        }
+      })
+        .then(({ status, data }) => {
+          if (status === 201) {
+            this.$store.dispatch('user/setWallet', data)
+            this.$router.push('/')
+          }
+        })
+        .finally(() => {
+          this.loadingCadastro = false
+        })
     }
   }
 }

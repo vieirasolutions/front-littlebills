@@ -54,6 +54,51 @@
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Little Bills</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-menu
+        transition="scroll-y-transition"
+        offset-y
+        :max-width="300"
+      >
+        <template v-slot:activator="{ on }">
+
+          <v-btn
+            v-on="on"
+            icon
+          >
+            <v-icon>person</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item avatar>
+            <v-list-item-avatar color="black">
+              <img
+                :src="avatar"
+                alt="avatar"
+              >
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>{{ nome }}</v-list-item-title>
+              <v-list-item-sub-title class="email">{{ email }}</v-list-item-sub-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider></v-divider>
+          <v-list-item link>
+            <v-list-item-action>
+              <v-icon>person</v-icon>
+            </v-list-item-action>
+
+            <v-list-item-content>
+              <v-list-item-title>Editar perfil</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+        </v-list>
+      </v-menu>
+      <v-btn icon>
+        <v-icon>exit_to_app</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <v-content>
@@ -61,15 +106,12 @@
         <v-card class="pa-3">
 
           <router-view />
+          <Snackbar />
         </v-card>
       </v-container>
     </v-content>
-    <!-- <v-footer
-      color="primary"
-      app
-    >
-      <span class="white--text">&copy; 2019</span>
-    </v-footer> -->
+
+    <EditProfile />
   </v-app>
 </template>
 
@@ -77,8 +119,26 @@
 
 export default {
   name: 'dashboard',
+  components: { EditProfile: () => import('@/components/EditProfile.vue'), Snackbar: () => import('@/components/Snackbar.vue') },
   data: () => ({
     drawer: true
-  })
+  }),
+  computed: {
+    nome: function () {
+      return this.$store.getters['user/getUser'].name
+    },
+    email: function () {
+      return this.$store.getters['user/getUser'].email
+    },
+    avatar: function () {
+      return this.$store.getters['user/getUser'].picture
+    }
+  }
 }
 </script>
+
+<style language="scss">
+.email {
+  font-size: 14px;
+}
+</style>

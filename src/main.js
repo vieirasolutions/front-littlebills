@@ -10,6 +10,7 @@ import './plugins/vee-validate'
 import './plugins/v-currency-field'
 import './layouts'
 import './filters'
+import './api'
 Vue.config.productionTip = false
 
 new Vue({

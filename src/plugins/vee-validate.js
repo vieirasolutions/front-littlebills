@@ -7,7 +7,8 @@ import {
 } from 'vee-validate'
 import {
   required,
-  email
+  email,
+  digits
 } from 'vee-validate/dist/rules'
 
 const moment = require('moment')
@@ -22,6 +23,11 @@ localize('pt_BR', {
 extend('required', {
   ...required,
   message: (field) => `Campo ${field} é obrigatório`
+})
+
+extend('digits', {
+  ...digits,
+  message: (field, { length }) => `O campo deve conter pelo menos ${length} dígitos`
 })
 
 // Add the email rule
