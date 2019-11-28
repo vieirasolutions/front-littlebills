@@ -168,10 +168,7 @@
         </v-btn>
       </template>
       <template v-slot:no-data>
-        <v-btn
-          color="primary"
-          @click="initialize"
-        >Reset</v-btn>
+        <span>Nenhum dado a ser exibido</span>
       </template>
     </v-data-table>
   </section>
@@ -194,8 +191,7 @@ export default {
         value: 'description'
       },
       { text: 'Valor', value: 'value' },
-      { text: 'Tipo', value: 'category.name' },
-      { text: 'Ações', value: 'action', sortable: false }
+      { text: 'Tipo', value: 'category.name' }
     ],
     desserts: [],
     editedIndex: -1,
@@ -243,7 +239,8 @@ export default {
       api({ url: '/categories',
         method: 'GET',
         params: {
-          type: 'income'
+          type: 'income',
+          user: this.$store.getters['user/getUser'].id
         } })
         .then(({ status, data }) => {
           this.items = data.rows
@@ -253,10 +250,10 @@ export default {
       api({ url: '/transactions',
         method: 'GET',
         params: {
-          categoryType: 'income'
+          categoryType: 'income',
+          user: this.$store.getters['user/getUser'].id
         } })
         .then(({ status, data }) => {
-          console.log(data)
           this.desserts = data.rows
         })
     },
@@ -293,10 +290,8 @@ export default {
           '_method': this.editedIndex !== -1 ? 'PUT' : 'POST'
         } })
         .then(({ status, data }) => {
-          console.log(status)
           // created
           if (status === 201) {
-            console.log('entrou')
             this.$store.dispatch('snackbar/openSnackbar', { text: 'Receita inserida com sucesso!', color: 'success', timeout: 6000 })
             this.initialize()
           }

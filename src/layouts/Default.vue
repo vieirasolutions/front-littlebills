@@ -90,13 +90,16 @@
             </v-list-item-action>
 
             <v-list-item-content>
-              <v-list-item-title>Editar perfil</v-list-item-title>
+              <v-list-item-title @click="editarPerfil()">Editar perfil</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
         </v-list>
       </v-menu>
-      <v-btn icon>
+      <v-btn
+        icon
+        to="/login"
+      >
         <v-icon>exit_to_app</v-icon>
       </v-btn>
     </v-app-bar>
@@ -123,6 +126,11 @@ export default {
   data: () => ({
     drawer: true
   }),
+  methods: {
+    editarPerfil () {
+      this.$store.state.editProfile = true
+    }
+  },
   computed: {
     nome: function () {
       return this.$store.getters['user/getUser'].name

@@ -185,7 +185,7 @@
                         <ValidationProvider
                           mode="lazy"
                           name="password"
-                          rules="required|digits:6"
+                          rules="required"
                           v-slot="{ errors }"
                         >
                           <v-text-field
@@ -205,7 +205,7 @@
                         <ValidationProvider
                           mode="lazy"
                           name="confirm_password"
-                          :rules="{ required: true, digits: {length: 6}, password_confirm: {password: password}}"
+                          :rules="{ required: true, password_confirm: {password: password}}"
                           v-slot="{ errors }"
                         >
                           <v-text-field
@@ -299,11 +299,11 @@ export default {
         this.loadingCadastro = true
         api.post('/users', {
           'email': this.email,
-          'nome': this.nome,
+          'name': this.nome,
           'role': 'user',
           'password': this.password,
           'sex': this.genero === 'M' ? 'male' : 'female',
-          'birthDate': this.$moment(this.dataNascimento, 'd/m/Y')
+          'birthDate': this.dataNascimento
         })
           .then(({ status, data }) => {
             if (status === 201) {
@@ -324,6 +324,40 @@ export default {
           })
       }
     },
+    criarCategorias () {
+      api({
+        url: '/categories',
+        method: 'POST',
+        data: {
+          name: 'Roupas',
+          type: 'expense'
+        }
+      })
+      api({
+        url: '/categories',
+        method: 'POST',
+        data: {
+          name: 'Material Escolar',
+          type: 'expense'
+        }
+      })
+      api({
+        url: '/categories',
+        method: 'POST',
+        data: {
+          name: 'Mesada',
+          type: 'income'
+        }
+      })
+      api({
+        url: '/categories',
+        method: 'POST',
+        data: {
+          name: 'Salário',
+          type: 'income'
+        }
+      })
+    },
     criarCarteira () {
       api({
         url: '/wallets',
@@ -336,6 +370,7 @@ export default {
         .then(({ status, data }) => {
           if (status === 201) {
             this.$store.dispatch('user/setWallet', data)
+            this.criarCategorias()
             this.$router.push('/')
           }
         })

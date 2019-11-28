@@ -13,11 +13,11 @@ export default {
     }
   },
   actions: {
-    setUser ({ commit }, user) {
-      commit('setUser', user)
+    async setUser ({ commit }, user) {
+      await commit('setUser', user)
     },
-    setWallet ({ commit }, wallet) {
-      commit('setWallet', wallet)
+    async setWallet ({ commit }, wallet) {
+      await commit('setWallet', wallet)
     }
   },
   getters: {

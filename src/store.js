@@ -10,7 +10,7 @@ export default new Vuex.Store({
     user: user
   },
   state: {
-
+    editProfile: false
   },
   mutations: {
 
